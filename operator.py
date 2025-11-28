@@ -53,12 +53,12 @@ class NoUvFaceError(Exception):
     pass
 
 class NoUvFaceSelectedError(NoUvFaceError):
-    
+
     def __init__(self, send_pinned):
         super().__init__('No UV face selected{}'.format(' (pinned UVs are ignored)' if send_pinned else ''))
 
 class NoUvFaceVisibleError(NoUvFaceError):
-    
+
     def __init__(self):
         super().__init__('No UV face visible')
 
@@ -103,8 +103,9 @@ class UVPM3_OT_Engine(UVPM3_OT_Generic, DefaultFinishConditionMixin):
         prefs = get_prefs()
         return prefs.engine_initialized and context.active_object is not None and context.active_object.mode == 'EDIT'
 
-    def __init__(self):
-        
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
         self.prefs = get_prefs()
         self.cancel_sig_sent = False
         self._timer = None
@@ -141,7 +142,7 @@ class UVPM3_OT_Engine(UVPM3_OT_Generic, DefaultFinishConditionMixin):
 
         if hasattr(self, 'SCENARIO_ID'):
             return self.SCENARIO_ID
-        
+
         mode = self.get_mode()
 
         if mode is not None and hasattr(mode, 'SCENARIO_ID'):
@@ -193,10 +194,10 @@ class UVPM3_OT_Engine(UVPM3_OT_Generic, DefaultFinishConditionMixin):
     def get_group_script_param_handler(self):
 
         return self.mode_method_std_call(lambda: None, 'get_group_script_param_handler')
-    
+
     def get_save_iparam_handler(self):
         return None
-    
+
     def update_context_meshes(self):
         if self.p_context is not None:
             self.p_context.update_meshes()
@@ -245,7 +246,7 @@ class UVPM3_OT_Engine(UVPM3_OT_Generic, DefaultFinishConditionMixin):
 
     def finish_after_operation_done(self):
         return not self.interactive
-    
+
     def use_default_operation_done_status(self):
         return self.log_manager.last_log(UvpmLogType.STATUS) is None
 
@@ -287,7 +288,7 @@ class UVPM3_OT_Engine(UVPM3_OT_Generic, DefaultFinishConditionMixin):
                 status_msg = 'Warnings were reported'
             else:
                 status_msg = 'Done'
-        
+
             self.log_manager.log(UvpmLogType.STATUS, status_msg)
 
         hint_str = self.operation_done_hint()
@@ -394,7 +395,7 @@ class UVPM3_OT_Engine(UVPM3_OT_Generic, DefaultFinishConditionMixin):
         self.hang_detected = True
         self.hang_saved_logs = (self.log_manager.last_log(UvpmLogType.HINT))
         self.log_manager.log(UvpmLogType.HINT, TextOverlayParser.parse_text(self.HANG_HINT))
-        
+
     def quit_hang_mode(self):
 
         if not self.hang_detected:
@@ -425,7 +426,7 @@ class UVPM3_OT_Engine(UVPM3_OT_Generic, DefaultFinishConditionMixin):
 
             else:
                 raise RuntimeError('Unexpected output from the connection thread')
-            
+
             msg_received += 1
 
         curr_time = time.time()
@@ -558,7 +559,7 @@ class UVPM3_OT_Engine(UVPM3_OT_Generic, DefaultFinishConditionMixin):
 
     def isolated_execution(self):
         return False
-    
+
     def get_mode(self):
 
         if self.mode is not None:
@@ -568,17 +569,17 @@ class UVPM3_OT_Engine(UVPM3_OT_Generic, DefaultFinishConditionMixin):
             self.mode = get_prefs().get_mode(self.mode_id, self.context)
             self.mode.init_op(self)
             return self.mode
-        
+
         return None
-    
+
     def get_script_container_id(self):
         return self.mode_method_std_call(lambda: None, 'get_script_container_id')
-    
+
     def exec_scripts(self, s_event):
         container_id = self.get_script_container_id()
         if not container_id:
             return
-        
+
         UVPM3_Scripting.exec_scripts(self.context, s_event, container_id)
 
 
@@ -610,11 +611,11 @@ class UVPM3_OT_Engine(UVPM3_OT_Generic, DefaultFinishConditionMixin):
 
         serialized_maps, selected_count =\
             self.p_context.serialize_uv_maps(send_unselected, send_pinned, send_verts_3d, send_verts_3d_global, iparam_serializers)
-        
+
         if self.require_selection():
             if selected_count == 0:
                 raise NoUvFaceSelectedError(send_pinned)
-        
+
         else:
             if self.p_context.total_visible_faces_stored_count == 0:
                 raise NoUvFaceVisibleError()
@@ -639,7 +640,7 @@ class UVPM3_OT_Engine(UVPM3_OT_Generic, DefaultFinishConditionMixin):
 
             engine_args_final += ['-T', str(self.prefs.test_param)]
             print('Pakcer args: ' + ' '.join(x for x in engine_args_final))
-        
+
 
         # --- Setup script params ---
         self.script_params = self.setup_script_params()
@@ -654,7 +655,7 @@ class UVPM3_OT_Engine(UVPM3_OT_Generic, DefaultFinishConditionMixin):
 
         if in_debug_mode():
             self.script_params.add_param('__test_param', self.prefs.test_param)
-        
+
         packages_dirpath = os.path.join(os.path.abspath(os.path.dirname(process_file_path(__file__))), SCRIPTED_PIPELINE_DIRNAME, ENGINE_PACKAGES_DIRNAME)
         scenario_dirpath = os.path.abspath(os.path.dirname(scenario['script_path']))
         self.script_params.add_sys_path(packages_dirpath)
@@ -760,7 +761,7 @@ class UVPM3_OT_Engine(UVPM3_OT_Generic, DefaultFinishConditionMixin):
             self.prefs.engine_retcode = UvpmRetCode.FATAL_ERROR
             self.set_report('ERROR', str(ex))
             cancel = True
-            
+
         except Exception as ex:
             if in_debug_mode():
                 print_backtrace(ex)
@@ -803,7 +804,7 @@ class UVPM3_OT_Engine(UVPM3_OT_Generic, DefaultFinishConditionMixin):
 
             self.prefs.engine_retcode = UvpmRetCode.FATAL_ERROR
             self.set_report('ERROR', str(ex))
-            
+
         except Exception as ex:
             if in_debug_mode():
                 print_backtrace(ex)
@@ -841,13 +842,13 @@ class UVPM3_OT_Engine(UVPM3_OT_Generic, DefaultFinishConditionMixin):
                 kwargs['width'] = self.props_dialog_width()
 
             return context.window_manager.invoke_props_dialog(self, **kwargs)
-            
+
         return self.execute(context)
 
     def send_unselected_islands(self):
 
         return self.mode_method_std_call(lambda: False, 'send_unselected_islands')
-    
+
     def send_pinned_islands(self):
 
         return self.mode_method_std_call(lambda: False, 'send_pinned_islands')

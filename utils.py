@@ -32,7 +32,7 @@ from .version import UvpmVersionInfo
 from .blend import get_scene_props
 
 import bpy
-import bpy_types
+import bpy.types
 import bmesh
 
 
@@ -74,7 +74,7 @@ def split_by_chars(str, cnt):
         array.append((curr_str))
 
     return array
-        
+
 
 def print_backtrace(ex):
     _, _, trback = sys.exc_info()
@@ -240,7 +240,7 @@ class ShadowedCollectionProperty:
     def __iter__(self):
 
         return iter(self.collection)
-        
+
 
 class PropertyWrapper:
 
@@ -250,7 +250,7 @@ class PropertyWrapper:
 
     def get_value(self):
         return getattr(self.obj, self.prop_id)
-    
+
     def draw(self, layout, text=None):
         kwargs = {}
         if text is not None:
@@ -265,7 +265,7 @@ class PropertyWrapper:
         from .prefs_scripted_utils import ScriptParams
         return ScriptParams.to_param(self.get_value())
 
-        
+
 class CollectionPropertyDictWrapper:
 
     def __init__(self, collection, key_name, value_name):
@@ -283,13 +283,13 @@ class CollectionPropertyDictWrapper:
         value = self.get(key)
         if value is not None:
             return value
-            
+
         new_elem = self.collection.add()
         setattr(new_elem, self.key_name, key)
         new_value = getattr(new_elem, self.value_name)
         self.dict[key] = new_value
         return new_value
-    
+
 
 class PanelUtilsMixin:
 
@@ -344,7 +344,7 @@ class PanelUtilsMixin:
             label_row = col.row(align=True)
             label_row.label(text=prop_name + ':')
             label_row.enabled = supported
-            
+
         row = col.row(align=True)
         prop_row = row.row(align=True)
         prop_row.prop(obj, prop_id, **prop_kwargs)
@@ -374,5 +374,5 @@ class PanelUtilsMixin:
             self.multi_panel = False
 
         self.props_with_help = not self.multi_panel
-        
+
         self.active_mode = self.get_active_mode(context)

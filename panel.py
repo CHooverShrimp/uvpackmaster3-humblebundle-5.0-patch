@@ -25,7 +25,7 @@ from .presets import *
 from .mode import ModeType, UVPM3_MT_BrowseModes
 
 import bpy
-import bpy_types
+import bpy.types
 
 
 UVPM3_PT_SPACE_TYPE = 'IMAGE_EDITOR'
@@ -39,7 +39,7 @@ class UVPM3_PT_Generic(PanelUtilsMixin):
     def poll(cls, context):
         if not hasattr(cls, 'poll_impl'):
             return True
-        
+
         try:
             cls.active_mode = cls.get_active_mode(context)
             return cls.poll_impl(context)
@@ -57,7 +57,7 @@ class UVPM3_PT_Generic(PanelUtilsMixin):
         col_s.prop(obj, prop_id)
         col_s = split.row(align=True)
         col_s.menu(menu_class.bl_idname, text='Set')
-        
+
     @classmethod
     def draw_expanded_enum(self, obj, prop_id, layout, item_enabled_checker=None):
         enum_values = obj.bl_rna.properties[prop_id].enum_items_static.keys()
@@ -85,7 +85,7 @@ class UVPM3_PT_Generic(PanelUtilsMixin):
 
             from .help import UVPM3_OT_WarningPopup
             UVPM3_OT_WarningPopup.draw_operator(row, text=not_supported_msg)
-    
+
     def not_supported_msg(self, context):
         return None
 
@@ -114,7 +114,7 @@ class UVPM3_PT_Generic(PanelUtilsMixin):
 
         if main_property is not None:
             self.layout.enabled = main_property.get_value()
-        
+
         self.draw_impl(context)
 
     @classmethod
@@ -202,7 +202,7 @@ class UVPM3_PT_AddonOptions(UVPM3_PT_Generic):
 
         layout = self.layout
         col = layout.column(align=True)
-        
+
         self.prefs.draw_addon_options(col)
 
         if in_debug_mode():
@@ -211,7 +211,7 @@ class UVPM3_PT_AddonOptions(UVPM3_PT_Generic):
             dopt_layout = col
             dopt_layout.label(text="Debug options:")
 
-            box = dopt_layout.box() 
+            box = dopt_layout.box()
             row = box.row(align=True)
             row.prop(self.prefs, "script_allow_execution")
 
@@ -219,7 +219,7 @@ class UVPM3_PT_AddonOptions(UVPM3_PT_Generic):
             row = box.row(align=True)
             row.prop(self.prefs, "write_to_file")
 
-            box = dopt_layout.box() 
+            box = dopt_layout.box()
             row = box.row(align=True)
             row.prop(self.prefs, "wait_for_debugger")
 
@@ -227,7 +227,7 @@ class UVPM3_PT_AddonOptions(UVPM3_PT_Generic):
             row.prop(self.prefs, "seed")
             row = dopt_layout.row(align=True)
             row.prop(self.prefs, "test_param")
-            
+
 
 class UVPM3_PT_Utilities(UVPM3_PT_Generic):
 
@@ -328,13 +328,13 @@ class UVPM3_PT_Registerable:
 
 
 class UVPM3_PT_SubPanelPack(UVPM3_PT_GenericPack, UVPM3_PT_Registerable):
-    
+
     bl_parent_id = UVPM3_PT_MainPack.bl_idname
 
     @classmethod
     def poll_impl(cls, context):
         return cls.bl_idname in cls.active_mode.subpanels_base()
-        
+
 
 class UVPM3_PT_IParamEditMixin:
 
