@@ -6,7 +6,7 @@ This is not an engine patch, this is a **Blender plugin** patch. You would still
 ## What's the issues?
 The `bpy_types` module was reorganized into `bpy.type`
 
-`__init__` in `UVPM3_OT_Engine` needs to accept more param to match modern Blender.
+`__init__` in a couple of places need to accept more parameters to match modern Blender.
 
 ## Can I trust you with this?
 This is a patch to `uvpackmaster3-addon-3.4.4-u5.zip`, the recommended version for Humble Bundle users.
