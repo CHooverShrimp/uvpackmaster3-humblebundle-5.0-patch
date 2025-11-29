@@ -40,9 +40,9 @@ class UVPM3_OT_IParamGeneric(UVPM3_OT_Engine):
 
     SCENARIO_ID = 'util.get_iparam_values'
 
-    def __init__(self):
-        super().__init__()
-        
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
         self.iparam_info = None
         self.iparam_value = None
         self.overlay_count = 0
@@ -62,7 +62,7 @@ class UVPM3_OT_IParamGeneric(UVPM3_OT_Engine):
     def operation_done_hint(self):
         if self.log_manager.engine_retcode == UvpmRetCode.SUCCESS:
             return "press any key to hide '{}' values".format(self.iparam_info.label)
-        
+
         return super().operation_done_hint()
 
     def get_iparam_serializers(self):
@@ -82,7 +82,7 @@ class UVPM3_OT_IParamGeneric(UVPM3_OT_Engine):
     def get_iparam_value(self):
         value_prop_obj = self.iparam_info.value_prop_obj if self.iparam_info.value_prop_obj is not None else self.scene_props
         return getattr(value_prop_obj, self.iparam_info.VALUE_PROP_ID)
-    
+
     def use_default_operation_done_status(self):
         return True
 
@@ -115,7 +115,7 @@ class UVPM3_OT_SelectIParam(UVPM3_OT_IParamGeneric):
     def require_selection(self):
 
         return False
-        
+
     def send_unselected_islands(self):
 
         return True
@@ -134,13 +134,13 @@ class UVPM3_OT_SelectNonDefaultIParam(UVPM3_OT_IParamGeneric):
     def require_selection(self):
 
         return False
-        
+
     def send_unselected_islands(self):
 
         return True
 
     def process_island(self, p_island):
-        
+
         if p_island.iparam_value(self.iparam_info) == self.iparam_info.default_value:
             return False
 
@@ -158,7 +158,7 @@ class UVPM3_OT_SetIParam(UVPM3_OT_ShowIParam):
         self.p_context.save_iparam(
             self.iparam_info,
             self.iparam_value)
-        
+
         self.update_context_meshes()
 
 
@@ -172,7 +172,7 @@ class UVPM3_OT_SetFreeIParam(UVPM3_OT_ShowIParam):
         self.p_context.save_iparam(
             self.iparam_info,
             self.iparam_value)
-        
+
         self.update_context_meshes()
 
     def get_iparam_value(self):
@@ -219,10 +219,10 @@ class UVPM3_OT_StdIParamGeneric:
     @staticmethod
     def get_iparam_info_impl(iparam_info_type):
         return globals()[iparam_info_type]()
-        
+
     def get_iparam_info(self):
         return self.get_iparam_info_impl(self.iparam_info_type)
-    
+
 
 class UVPM3_OT_StdShowIParam(UVPM3_OT_StdIParamGeneric, UVPM3_OT_ShowIParam, IParamInfoTypeAttrMixin):
 
@@ -299,7 +299,7 @@ class UVPM3_OT_ResetManualGroupIParam(UVPM3_OT_ManualGroupIParamGeneric, UVPM3_O
 class UVPM3_OT_SelectManualGroupIParam(UVPM3_OT_ManualGroupIParamGeneric, UVPM3_OT_SelectIParam, AccessDescIdAttrMixin):
 
     select : BoolProperty(name='', default=True)
-    
+
     bl_idname = 'uvpackmaster3.select_island_manual_group'
     bl_label = 'Select Islands Assigned To Group'
     bl_description = "Select / deselect all islands which are assigned to the active group"
@@ -346,19 +346,19 @@ class UVPM3_OT_ApplyGroupingToScheme(TargetGroupingSchemeMixin, UVPM3_OT_ShowMan
             groups_num_map[generated_group.num] = target_group.num
 
         generated_group_map = generated_g_scheme.group_map
-        
+
         for face_idx, generated_group_num in enumerate(generated_group_map.map):
             if generated_group_num in groups_num_map:
                 target_group_map.map[face_idx] = groups_num_map[generated_group_num]
-                
+
         return target_group_map
-    
+
     def target_scheme_name_impl(self, context):
         self.context = context
         grouping_config = self.get_mode().grouping_config
         group_method_label = grouping_config.group_method_obj.bl_rna.properties[grouping_config.group_method_prop_id].enum_items[grouping_config.get_group_method()].name
         return "Scheme '{}'".format(group_method_label)
-                
+
     def draw_impl(self, context, layout):
         if self.create_new_g_scheme():
             box = layout.box()
@@ -380,7 +380,7 @@ class NumberedGroupsAccess:
         assert (self.desc.use_g_scheme)
         if self.g_scheme is not None:
             return self.g_scheme
-        
+
         g_scheme_access = GroupingSchemeAccess()
         g_scheme_access.init_access(self.context, desc_id=self.desc_id)
         self.g_scheme = g_scheme_access.get_active_g_scheme_safe()
@@ -392,22 +392,22 @@ class NumberedGroupsAccess:
     def get_iparam_info(self):
         if self.desc.use_g_scheme:
             return self.get_g_scheme().get_iparam_info()
-        
+
         iparam_info = NumberedGroupIParamInfo()
         iparam_info.script_name = self.desc_id
         iparam_info.label = self.desc_id.replace('_', ' ').title()
         iparam_info.value_prop_obj = self.desc
         return iparam_info
-    
+
     def get_iparam_serializer(self):
         if self.desc.use_g_scheme:
             return self.get_g_scheme().get_iparam_serializer()
-        
+
         return VColorIParamSerializer(self.get_iparam_info())
-    
+
     def get_enable_property(self):
         return PropertyWrapper(self.desc, 'enable')
-        
+
 
 class NumberedGroupsDescIdMixin:
 
@@ -419,7 +419,7 @@ class UVPM3_OT_NumberedGroupIParamGeneric:
     def execute_internal(self, context):
         self.groups_access = NumberedGroupsAccess(context, desc_id=self.groups_desc_id)
         return super().execute_internal(context)
-    
+
     def get_iparam_info(self):
          return self.groups_access.get_iparam_info()
 
@@ -455,7 +455,7 @@ class UVPM3_OT_NumberedGroupResetIParam(UVPM3_OT_NumberedGroupIParamGeneric, UVP
 class UVPM3_OT_NumberedGroupSelectIParam(UVPM3_OT_NumberedGroupIParamGeneric, UVPM3_OT_SelectIParam, NumberedGroupsDescIdMixin):
 
     select : BoolProperty(name='', default=True)
-    
+
     bl_idname = 'uvpackmaster3.numbered_group_select_iparam'
     bl_label = 'Select Islands Assigned To Group'
     bl_description = "Select / deselect all islands which are assigned to the group determined by the 'Group Number' parameter"
@@ -464,7 +464,7 @@ class UVPM3_OT_NumberedGroupSelectIParam(UVPM3_OT_NumberedGroupIParamGeneric, UV
 class UVPM3_OT_NumberedGroupSelectNonDefaultIParam(UVPM3_OT_NumberedGroupIParamGeneric, UVPM3_OT_SelectNonDefaultIParam, NumberedGroupsDescIdMixin):
 
     select : BoolProperty(name='', default=True)
-    
+
     bl_idname = 'uvpackmaster3.numbered_group_select_non_default_iparam'
     bl_label = 'Select All Groups'
     bl_description = "Select all islands which are assigned to any group"

@@ -47,7 +47,7 @@ class TextOverlay:
 
 
 class ParsedText:
-    
+
     def __init__(self, text, chunks):
         self.text = text
         self.chunks = chunks
@@ -71,11 +71,11 @@ class ParsedText:
 
     def __len__(self):
         return len(self.text)
-    
+
     def startswith(self, str):
         if len(self) == 0:
             return str == ''
-        
+
         return self.chunks[0].text.startswith(str)
 
 
@@ -98,8 +98,8 @@ class TextOverlayParser(HTMLParser):
         "error" : (1, 0, 0, 1)
     }
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.chunks = [self._create_new_chunk()]
         self.chunks_level_map = {0: [self.chunks[0]]}
         self.current_chunk_index = 0
@@ -239,7 +239,7 @@ class OverlayManager:
     def set_font_size(self, font_size, force=False):
         if not force and font_size == self.curr_font_size:
             return
-        
+
         blf_size(self.font_id, font_size, 72)
         self.curr_font_size = font_size
 
@@ -310,7 +310,7 @@ class EngineOverlayManager(OverlayManager):
 
     def __init__(self, op, dev_array):
         super().__init__(op.p_context.context, engine_overlay_manager_draw_callback)
-        
+
         self.op = op
         self.dev_array = dev_array
         self.print_dev_progress = True
@@ -383,7 +383,7 @@ def engine_overlay_manager_draw_callback(self, context):
         for log_type, header in log_print_metadata:
             op_status = self.log_manager.LOGTYPE_TO_OPSTATUS[log_type]
             color = self.OPSTATUS_TO_COLOR[op_status]
-            
+
             log_list = self.log_manager.log_list(log_type)
             if len(log_list) > 0:
                 self.print_list(header, log_list, color)
